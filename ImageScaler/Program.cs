@@ -40,7 +40,7 @@ namespace ImageScaler
             var path = Path.Combine(baseDirectory, mipmap);
             Directory.CreateDirectory(path);
             ScaleImage(filenameArg, sizeArgIcon).Save(Path.Combine(path, "icon.png"));
-            ScaleImage(filenameArg, sizeArgLauncher).Save(Path.Combine(path, "launcher_foreground.png"));
+            ScaleImageForLauncher(filenameArg, sizeArgIcon, sizeArgLauncher).Save(Path.Combine(path, "launcher_foreground.png"));
         }
 
         private static Bitmap ScaleImage(string filenameArg, string sizeArg)
@@ -55,6 +55,23 @@ namespace ImageScaler
                 g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 g.DrawImage(bitmap, 0, 0, scaled.Width, scaled.Height);
+            }
+            return scaled;
+        }
+
+        private static Bitmap ScaleImageForLauncher(string filenameArg, string sizeArg, string sizeArgForLauncher)
+        {
+            var scaled = ParseSize(sizeArgForLauncher);
+            var inner = ParseSize(sizeArg);
+            var bitmap = Image.FromFile(filenameArg);
+            using (var g = Graphics.FromImage(scaled))
+            {
+                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.DrawImage(bitmap, (float)Math.Round(scaled.Width / 2.0 - inner.Width / 2.0), (float)Math.Round(scaled.Height / 2.0 - inner.Height / 2.0), inner.Width, inner.Height);
             }
             return scaled;
         }
